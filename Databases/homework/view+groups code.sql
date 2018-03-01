@@ -49,12 +49,12 @@ as select dc.*
 from Departs d, Doctors dc, Doctors dhead
 where ((dhead.role = 'руководитель') AND (dhead.login = 'gudin') AND (dhead.Depart = d.Number) AND (dc.Depart = d.Number));
 
-РК - рукво клиники
-РО - рукво отделений
-К - клиенты
-В - врачи
-Р - ресепшн
-Б - бухгалтер
+--РК - рукво клиники
+--РО - рукво отделений
+--К - клиенты
+--В - врачи
+--Р - ресепшн
+--Б - бухгалтер
 
 --расписание врача -- РК(SIUD), РО(SIUD), К(S), В(S), Р(SIU)
 --услуги + стоимость -- РК(SIUD), РО(S), К(S), Р(S)
