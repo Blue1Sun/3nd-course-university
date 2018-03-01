@@ -1,71 +1,71 @@
 
---текущие больные 
+--С‚РµРєСѓС‰РёРµ Р±РѕР»СЊРЅС‹Рµ 
 create view Cur_Sick
 as select distinct cl.name as 'Owner name', p.*, d.name as 'Diagnose'
 from Pets p, Card c, Appointment a, Clients cl, Diagnoses d
 where ((p.Owner = cl.Id) AND (c.Rec_Date IS NULL) AND (c.Doctor = a.Doctor) AND (c.Diagnose = d.id) AND (c.Reg_date = a.Date_Time) AND (a.Pet = p.Id));
 
---животные, больные определенным заболеванием+ инфа 
+--Р¶РёРІРѕС‚РЅС‹Рµ, Р±РѕР»СЊРЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Рј Р·Р°Р±РѕР»РµРІР°РЅРёРµРј+ РёРЅС„Р° 
 create view Animal_Ill
 as select p.*, c.Reg_date
 from Pets p, Card c, Appointment a, Diagnoses d
-where ((c.Doctor = a.Doctor) AND (c.Reg_date = a.Date_Time) AND (a.Pet = p.Id) AND (c.Diagnose = d.id) AND (d.name = 'Ящур'));
+where ((c.Doctor = a.Doctor) AND (c.Reg_date = a.Date_Time) AND (a.Pet = p.Id) AND (c.Diagnose = d.id) AND (d.name = 'ГџГ№ГіГ°'));
  
---врачи 1ого отделения+кто не занят сегодня
+--РІСЂР°С‡Рё 1РѕРіРѕ РѕС‚РґРµР»РµРЅРёСЏ+РєС‚Рѕ РЅРµ Р·Р°РЅСЏС‚ СЃРµРіРѕРґРЅСЏ
 create Depart_Doc
 as select d.*, dc.name as 'Doctor name', dc.surname as 'Doctor surname'
 from Departs d, Doctors dc
 where ((d.number = 1) AND (dc.Depart = d.Number) AND dc.Id NOT IN (select Doctor from Appointment where year(Date_Time) = year(curdate()) AND month(Date_Time) = month(curdate()) AND day(Date_Time) = day(curdate()));
 
 
---личный кабинет клиента 1 (животные-приемы-время-стоимость итп) 
+--Р»РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚ РєР»РёРµРЅС‚Р° 1 (Р¶РёРІРѕС‚РЅС‹Рµ-РїСЂРёРµРјС‹-РІСЂРµРјСЏ-СЃС‚РѕРёРјРѕСЃС‚СЊ РёС‚Рї) 
 create Cli_Acc
 as select p.name, p.species, a.Date_Time, d.name as 'Doctor name', d.surname as 'Doctor surname', a.Room as 'Room', s.Name, s.cost
 from Pets p, Appointment a, Services s, Doctors d
 where ((p.Owner = 1) AND (a.Pet = p.Id) AND (a.Service = s.Id) AND (a.Doctor = d.Id));
 
---возможные диагнозы на определенный симптом
+--РІРѕР·РјРѕР¶РЅС‹Рµ РґРёР°РіРЅРѕР·С‹ РЅР° РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ СЃРёРјРїС‚РѕРј
 create Dia_Symp
 as select d.*
 from Diagnoses s, Symptoms s, Diag_Symp ds
-where ((ds.Symptom = s.Id) AND (ds.Diagnose = d.Id) AND (s.Name like 'тошнота'));
+where ((ds.Symptom = s.Id) AND (ds.Diagnose = d.Id) AND (s.Name like 'ГІГ®ГёГ­Г®ГІГ '));
 
---будущее расписание врача, зашедшего под логином gudin 
+--Р±СѓРґСѓС‰РµРµ СЂР°СЃРїРёСЃР°РЅРёРµ РІСЂР°С‡Р°, Р·Р°С€РµРґС€РµРіРѕ РїРѕРґ Р»РѕРіРёРЅРѕРј gudin 
 create Doc_Sch
 as select a.Date_Time, a.Room as 'Room', p.name as 'Pet', s.Name as 'Service' 
 from Appointment a, Doctors d, Pet p, Services s
 where ((d.login = 'gudin') AND (a.Doctor = d.Id) AND (a.Date_Time > curdate()) AND (a.Pet = p.Id) AND (a.Service = s.Id));
 
---услуги + стоимость 
+--СѓСЃР»СѓРіРё + СЃС‚РѕРёРјРѕСЃС‚СЊ 
 create Serv_Cost
 as select s.name, s.cost
 from Services s;
 
---данные об отделениях для руководителя отделения 
+--РґР°РЅРЅС‹Рµ РѕР± РѕС‚РґРµР»РµРЅРёСЏС… РґР»СЏ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ РѕС‚РґРµР»РµРЅРёСЏ 
 
---данные о сотрудниках отделения для руводителя
+--РґР°РЅРЅС‹Рµ Рѕ СЃРѕС‚СЂСѓРґРЅРёРєР°С… РѕС‚РґРµР»РµРЅРёСЏ РґР»СЏ СЂСѓРІРѕРґРёС‚РµР»СЏ
 create Dep_work
 as select dc.*
 from Departs d, Doctors dc, Doctors dhead
-where ((dhead.role = 'руководитель') AND (dhead.login = 'gudin') AND (dhead.Depart = d.Number) AND (dc.Depart = d.Number));
+where ((dhead.role = 'Г°ГіГЄГ®ГўГ®Г¤ГЁГІГҐГ«Гј') AND (dhead.login = 'gudin') AND (dhead.Depart = d.Number) AND (dc.Depart = d.Number));
 
---РК - рукво клиники
---РО - рукво отделений
---К - клиенты
---В - врачи
---Р - ресепшн
---Б - бухгалтер
+--Р Рљ - СЂСѓРєРІРѕ РєР»РёРЅРёРєРё
+--Р Рћ - СЂСѓРєРІРѕ РѕС‚РґРµР»РµРЅРёР№
+--Рљ - РєР»РёРµРЅС‚С‹
+--Р’ - РІСЂР°С‡Рё
+--Р  - СЂРµСЃРµРїС€РЅ
+--Р‘ - Р±СѓС…РіР°Р»С‚РµСЂ
 
---расписание врача -- РК(SIUD), РО(SIUD), К(S), В(S), Р(SIU)
---услуги + стоимость -- РК(SIUD), РО(S), К(S), Р(S)
---данные об отделениях для руководителя отделения -- РК(SIUD), РО(S)
---данные о сотрудниках отделения для руводителя -- РК(SIUD), РО(S)
---выписка на получение зарплаты -- Б(S)
---текущие больные -- РО(S), В(S)
---животные, больные определенным заболеванием+ инфа -- РО(S), В(S)
---отделения+ их услуги+кто не занят(опционально) -- РО(S), К(S), Р(S)
---личный кабинет клиента(животные-приемы-время-стоимость итп) -- К(S)
---возможные диагнозы на определенный симптом -- РО(S), РК(S)
+--СЂР°СЃРїРёСЃР°РЅРёРµ РІСЂР°С‡Р° -- Р Рљ(SIUD), Р Рћ(SIUD), Рљ(S), Р’(S), Р (SIU)
+--СѓСЃР»СѓРіРё + СЃС‚РѕРёРјРѕСЃС‚СЊ -- Р Рљ(SIUD), Р Рћ(S), Рљ(S), Р (S)
+--РґР°РЅРЅС‹Рµ РѕР± РѕС‚РґРµР»РµРЅРёСЏС… РґР»СЏ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ РѕС‚РґРµР»РµРЅРёСЏ -- Р Рљ(SIUD), Р Рћ(S)
+--РґР°РЅРЅС‹Рµ Рѕ СЃРѕС‚СЂСѓРґРЅРёРєР°С… РѕС‚РґРµР»РµРЅРёСЏ РґР»СЏ СЂСѓРІРѕРґРёС‚РµР»СЏ -- Р Рљ(SIUD), Р Рћ(S)
+--РІС‹РїРёСЃРєР° РЅР° РїРѕР»СѓС‡РµРЅРёРµ Р·Р°СЂРїР»Р°С‚С‹ -- Р‘(S)
+--С‚РµРєСѓС‰РёРµ Р±РѕР»СЊРЅС‹Рµ -- Р Рћ(S), Р’(S)
+--Р¶РёРІРѕС‚РЅС‹Рµ, Р±РѕР»СЊРЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Рј Р·Р°Р±РѕР»РµРІР°РЅРёРµРј+ РёРЅС„Р° -- Р Рћ(S), Р’(S)
+--РѕС‚РґРµР»РµРЅРёСЏ+ РёС… СѓСЃР»СѓРіРё+РєС‚Рѕ РЅРµ Р·Р°РЅСЏС‚(РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ) -- Р Рћ(S), Рљ(S), Р (S)
+--Р»РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚ РєР»РёРµРЅС‚Р°(Р¶РёРІРѕС‚РЅС‹Рµ-РїСЂРёРµРјС‹-РІСЂРµРјСЏ-СЃС‚РѕРёРјРѕСЃС‚СЊ РёС‚Рї) -- Рљ(S)
+--РІРѕР·РјРѕР¶РЅС‹Рµ РґРёР°РіРЅРѕР·С‹ РЅР° РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ СЃРёРјРїС‚РѕРј -- Р Рћ(S), Р Рљ(S)
 
 --create index e_posts on employees(e_post);
 --create index e_tel on employees(e_room, e_phone);
